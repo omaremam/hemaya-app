@@ -1,12 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hemaya/screens/login_screen.dart';
 import 'screens/join_screen.dart';
 import 'services/signalling.service.dart';
 
 void main() {
   // start videoCall app
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarBrightness: Brightness.dark));
   runApp(VideoCallApp());
 }
 
