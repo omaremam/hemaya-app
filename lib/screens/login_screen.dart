@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hemaya/screens/join_screen.dart';
 import 'package:hemaya/screens/registeration_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -79,23 +82,32 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<Map<String, dynamic>?> login(String username, String password) async {
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('email', isEqualTo: username)
-        .where('password', isEqualTo: password)
-        .get();
+  Future<Map<String, dynamic>?> login(String email, String password) async {
+    final url = Uri.parse("http://13.36.63.83:5956/signin");
 
-    if (snapshot.docs.isNotEmpty) {
-      // If user found, return the user data as a Map with the document ID added
-      final userDoc = snapshot.docs.first;
-      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-      userData['id'] = userDoc.id;
-      print(userData);
-      print(userData['id']);
+    print(email);
+    print(password);
+
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+    };
+
+    var data = {'email': email, 'password': password};
+
+    var reqBody = jsonEncode(data);
+
+    print(reqBody);
+
+    final response = await http.post(url, body: reqBody, headers: headers);
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // If user found, return the response body as a Map
+      final Map<String, dynamic> userData = json.decode(response.body);
       return userData;
     } else {
-      // If no user found, return null
+      // If no user found or other error, return null
       return null;
     }
   }

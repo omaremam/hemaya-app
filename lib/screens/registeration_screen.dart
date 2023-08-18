@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:hemaya/screens/login_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -26,33 +28,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<bool> registerUser(String email, String password, String name) async {
-    try {
-      // Check if the email already exists in the "users" collection
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .get();
+    final url = Uri.parse(
+        "http://13.36.63.83:5956/users"); // Replace with the actual URL
 
-      if (snapshot.docs.isNotEmpty) {
-        // Email already exists, handle the error
-        return false;
-      }
-      print(
-          "gdrhdsrdfhhdrhrzhehtzeeastyrtufrez6yxr6yry6cctuctjktk xtrcxccxrjxjdrydthxtjgdtnSrhhtshsrdtdgndgtctgj");
-      // Create a new document in the "users" collection with the user data
-      FirebaseFirestore.instance.collection('users').add({
-        'email': email,
-        'password': password,
-        'name': name,
-      });
+    var data = {
+      'email': email,
+      'password': password,
+      'name': name,
+    };
 
-      print("asasasas");
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+    };
 
-      // Registration successful
+    var reqBody = jsonEncode(data);
+    print("HERE");
+
+    final response = await http.post(url, body: reqBody, headers: headers);
+
+    print("THERE");
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // User registered successfully
       return true;
-    } catch (e) {
-      // Handle registration errors
-      print('Registration failed: $e');
+    } else {
+      // Registration failed or other error
       return false;
     }
   }

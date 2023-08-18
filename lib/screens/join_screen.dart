@@ -212,7 +212,15 @@ class _JoinScreenState extends State<JoinScreen> {
                                 borderRadius: BorderRadius.circular(10.0)),
                             elevation: 0,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => CallsScreen(
+                                          isAnswered: false,
+                                          userId: widget.selfCallerId,
+                                        )));
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -221,7 +229,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                 child: Icon(Icons.arrow_forward),
                               ),
                               Text(
-                                'البلاغات المغلقة',
+                                'البلاغات المعلقة',
                                 style: TextStyle(color: Colors.black),
                               ),
                               Container(
@@ -245,7 +253,9 @@ class _JoinScreenState extends State<JoinScreen> {
                                 borderRadius: BorderRadius.circular(10.0)),
                             elevation: 0,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
