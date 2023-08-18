@@ -37,13 +37,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         // Email already exists, handle the error
         return false;
       }
-
+      print(
+          "gdrhdsrdfhhdrhrzhehtzeeastyrtufrez6yxr6yry6cctuctjktk xtrcxccxrjxjdrydthxtjgdtnSrhhtshsrdtdgndgtctgj");
       // Create a new document in the "users" collection with the user data
-      await FirebaseFirestore.instance.collection('users').add({
+      FirebaseFirestore.instance.collection('users').add({
         'email': email,
         'password': password,
         'name': name,
       });
+
+      print("asasasas");
 
       // Registration successful
       return true;
@@ -65,8 +68,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 padding: EdgeInsets.only(top: 50.0),
                 child: Image.asset(
                   'assets/hemaya.png',
-                  width: 170,
-                  height: 170,
+                  width: 140,
+                  height: 140,
                 ),
               ),
               Container(
@@ -96,138 +99,236 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 10.0),
-                      child: Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: TextField(
+                      child: Container(
+                        width: 250,
+                        height: 50,
+                        child: Directionality(
                           textDirection: TextDirection.rtl,
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'إيميل المستخدم',
-                            prefixIcon: Icon(Icons.email),
+                          child: TextField(
+                            textDirection: TextDirection.rtl,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText: 'إيميل المستخدم',
+                              prefixIcon: Icon(Icons.email),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                email = value;
+                              });
+                            },
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              email = value;
-                            });
-                          },
                         ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 10.0),
-                      child: Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: TextField(
+                      child: Container(
+                        width: 250,
+                        height: 50,
+                        child: Directionality(
                           textDirection: TextDirection.rtl,
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'اسم المستخدم',
-                            prefixIcon: Icon(Icons.person),
+                          child: TextField(
+                            textDirection: TextDirection.rtl,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText: 'اسم المستخدم',
+                              prefixIcon: Icon(Icons.person),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                name = value;
+                              });
+                            },
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              name = value;
-                            });
-                          },
                         ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 10.0),
-                      child: Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: TextField(
+                      child: Container(
+                        width: 250,
+                        height: 50,
+                        child: Directionality(
                           textDirection: TextDirection.rtl,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'كلمة المرور',
-                            prefixIcon: const Icon(Icons.lock),
-                            errorText: !isPasswordMatch
-                                ? 'كلمة المرور غير متطابقة'
-                                : null,
+                          child: TextField(
+                            textDirection: TextDirection.rtl,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText: 'كلمة المرور',
+                              prefixIcon: const Icon(Icons.lock),
+                              errorText: !isPasswordMatch
+                                  ? 'كلمة المرور غير متطابقة'
+                                  : null,
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                password = value;
+                              });
+                            },
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              password = value;
-                            });
-                          },
                         ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 10.0),
-                      child: Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: TextField(
-                          textAlign: TextAlign.right,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            labelText: 'تأكيد كلمة المرور',
-                            prefixIcon: Icon(Icons.lock),
-                            errorText: !isPasswordMatch
-                                ? 'كلمة المرور غير متطابقة'
-                                : null,
+                      child: Container(
+                        width: 250,
+                        height: 50,
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: TextField(
+                            textAlign: TextAlign.right,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText: 'تأكيد كلمة المرور',
+                              prefixIcon: Icon(Icons.lock),
+                              errorText: !isPasswordMatch
+                                  ? 'كلمة المرور غير متطابقة'
+                                  : null,
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                confirmPassword = value;
+                              });
+                            },
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              confirmPassword = value;
-                            });
-                          },
                         ),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            isPasswordMatch = password == confirmPassword;
-                          });
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Container(
+                        width: 250,
+                        height: 40,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromARGB(207, 207, 207, 207),
+                                  Colors.white,
+                                  //add more colors
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              borderRadius: BorderRadius.circular(7),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                    color: Color.fromRGBO(
+                                        0, 0, 0, 0.57), //shadow for button
+                                    blurRadius: 5) //blur radius of shadow
+                              ]),
+                          child: TextButton(
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.transparent),
+                            ),
+                            onPressed: () async {
+                              // ignore: use_build_context_synchronously
+                              setState(() {
+                                isPasswordMatch = password == confirmPassword;
+                              });
 
-                          if (isPasswordMatch) {
-                            bool isRegistered =
-                                await registerUser(email, password, name);
+                              if (isPasswordMatch) {
+                                bool isRegistered =
+                                    await registerUser(email, password, name);
 
-                            if (isRegistered) {
+                                if (isRegistered) {
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginScreen()),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text("Email already exists")));
+                                }
+                              }
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 10.0, left: 10),
+                              child: const Text(
+                                  style: TextStyle(fontSize: 16), "إنشاء حساب"),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 22.0),
+                      child: Container(
+                        width: 250,
+                        height: 40,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color.fromARGB(207, 207, 207, 207),
+                                  Colors.white,
+                                  //add more colors
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              borderRadius: BorderRadius.circular(7),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                    color: Color.fromRGBO(
+                                        0, 0, 0, 0.57), //shadow for button
+                                    blurRadius: 5) //blur radius of shadow
+                              ]),
+                          child: TextButton(
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.black),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.transparent),
+                            ),
+                            onPressed: () async {
                               // ignore: use_build_context_synchronously
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const LoginScreen()),
+                                    builder: (context) => LoginScreen()),
                               );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text("Email already exists")));
-                            }
-                          }
-                        },
-                        child: const Text('تسجيل'),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 0.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // loginWithEmailAndPassword(username, password); temporarly disabled for testing
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen()),
-                          );
-                        },
-                        child: const Text('تسجيل الدخول'),
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 10.0, left: 10),
+                              child: const Text(
+                                  style: TextStyle(fontSize: 16),
+                                  'تسجيل الدخول'),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

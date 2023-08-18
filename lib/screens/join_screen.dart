@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'call_screen.dart';
 import '../services/signalling.service.dart';
+import 'calls_screen.dart';
 
 class JoinScreen extends StatefulWidget {
   final String selfCallerId;
-  final String name;
+  final String name, userId;
   late double? lat;
   late double? long;
 
-  JoinScreen(
-      {super.key,
-      required this.selfCallerId,
-      required this.name,
-      required this.lat,
-      required this.long});
+  JoinScreen({
+    super.key,
+    required this.selfCallerId,
+    required this.name,
+    required this.lat,
+    required this.long,
+    required this.userId,
+  });
 
   @override
   State<JoinScreen> createState() => _JoinScreenState();
@@ -35,18 +38,21 @@ class _JoinScreenState extends State<JoinScreen> {
     required String name,
     required double? lat,
     required double? long,
+    required String? userId,
     dynamic offer,
   }) {
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (_) => CallScreen(
-              callerId: callerId,
-              calleeId: calleeId,
-              offer: offer,
-              lat: lat,
-              long: long,
-              name: name)),
+                callerId: callerId,
+                calleeId: calleeId,
+                offer: offer,
+                lat: lat,
+                long: long,
+                name: name,
+                userId: userId!,
+              )),
     );
   }
 
@@ -123,7 +129,15 @@ class _JoinScreenState extends State<JoinScreen> {
                                 borderRadius: BorderRadius.circular(10.0)),
                             elevation: 0,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            _joinCall(
+                                callerId: widget.selfCallerId,
+                                calleeId: "1234",
+                                name: widget.name,
+                                lat: widget.lat,
+                                long: widget.long,
+                                userId: widget.selfCallerId);
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -132,7 +146,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                 child: Icon(Icons.arrow_forward),
                               ),
                               Text(
-                                'البلاغات المغلقة',
+                                'بلاغ جديد',
                                 style: TextStyle(color: Colors.black),
                               ),
                               Container(
@@ -156,7 +170,16 @@ class _JoinScreenState extends State<JoinScreen> {
                                 borderRadius: BorderRadius.circular(10.0)),
                             elevation: 0,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => CallsScreen(
+                                        isAnswered: true,
+                                        userId: widget.selfCallerId,
+                                      )),
+                            );
+                          },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

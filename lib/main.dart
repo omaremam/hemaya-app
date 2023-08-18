@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hemaya/screens/langdingScreen.dart';
 import 'package:hemaya/screens/login_screen.dart';
 import 'screens/join_screen.dart';
 import 'services/signalling.service.dart';
@@ -34,7 +35,7 @@ class VideoCallApp extends StatelessWidget {
 
     // return material app
     return MaterialApp(
-      home: const LoginScreen(),
+      home: LandingScreen(),
     );
   }
 }

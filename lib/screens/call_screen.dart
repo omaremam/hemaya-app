@@ -3,7 +3,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import '../services/signalling.service.dart';
 
 class CallScreen extends StatefulWidget {
-  final String callerId, calleeId, name;
+  final String callerId, calleeId, name, userId;
   final double? lat, long;
   final dynamic offer;
   const CallScreen({
@@ -14,6 +14,7 @@ class CallScreen extends StatefulWidget {
     required this.name,
     required this.lat,
     required this.long,
+    required this.userId,
   });
 
   @override
@@ -130,12 +131,16 @@ class _CallScreenState extends State<CallScreen> {
     await _rtcPeerConnection!.setLocalDescription(offer);
 
     // make a call to remote peer over signalling
+    print(widget.calleeId);
+    print(widget.callerId);
+
     socket!.emit('makeCall', {
       "calleeId": widget.calleeId,
       "sdpOffer": offer.toMap(),
       "name": widget.name,
       "lat": widget.lat,
-      "long": widget.long
+      "long": widget.long,
+      "userId": widget.callerId
     });
   }
 
