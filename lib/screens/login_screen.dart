@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hemaya/screens/join_screen.dart';
 import 'package:hemaya/screens/registeration_screen.dart';
+import 'package:hemaya/services/local_auth_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 
@@ -288,13 +289,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               Colors.transparent),
                         ),
                         onPressed: () {
-                          // loginWithEmailAndPassword(username, password); temporarly disabled for testing
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const RegistrationScreen()),
-                          );
+                         final authentication = LocalAuth.authenticate();
+                         print(authentication);
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //       builder: (context) =>
+                          //           const RegistrationScreen()),
+                          // );
                         },
                         child: const Text(
                             style: TextStyle(fontSize: 17), 'نسيت كلمة المرور'),
@@ -330,7 +332,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: MaterialStateProperty.all<Color>(
                                   Colors.transparent),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                                final authentication = await LocalAuth.authenticate();
+                                print(authentication);
                               // loginWithEmailAndPassword(username, password); temporarly disabled for testing
                             },
                             child: Padding(

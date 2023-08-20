@@ -36,7 +36,6 @@ dependencies:
   socket_io_client: ^2.0.1
   geolocator: ^8.0.1
   permission_handler: ^9.0.0
-  camera: ^0.9.4+19
   path_provider: ^2.0.9
   path: ^1.8.0
   google_ml_kit: ^0.13.0
