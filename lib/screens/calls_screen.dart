@@ -51,6 +51,36 @@ class _CallsScreenState extends State<CallsScreen> {
     }
   }
 
+  String formatTimestamp(Map<String, dynamic> timestamp) {
+    int seconds = timestamp['_seconds'];
+    int nanoseconds = timestamp['_nanoseconds'];
+
+    // Combine seconds and nanoseconds into a single value
+    int combinedMilliseconds =
+        (seconds * 1000) + (nanoseconds / 1000000).round();
+
+    DateTime dateTime =
+        DateTime.fromMillisecondsSinceEpoch(combinedMilliseconds);
+
+    String day = dateTime.day.toString();
+    String month = dateTime.month.toString();
+    String year = dateTime.year.toString();
+
+    // Arabic numerals
+    String formattedDate = '$day/$month/$year';
+
+    int hour = dateTime.hour;
+    int minute = dateTime.minute;
+
+    // Arabic numerals
+    String formattedTime =
+        '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+    String formattedDateTime = '$formattedDate $formattedTime';
+
+    return formattedDateTime;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,9 +119,34 @@ class _CallsScreenState extends State<CallsScreen> {
                           snapshot.data![index] as Map<String, dynamic>;
 
                       // Use your session data here to build the list item
-                      return ListTile(
-                        title: Text("asdasdasd"),
-                        subtitle: Text(sessionData['timestamp'].toString()),
+                      return Container(
+                        margin: EdgeInsets.all(5),
+                        child: ListTile(
+                          tileColor: Colors.white30,
+                          trailing: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                  "البلاغ رقم: ${sessionData["timestamp"]["_seconds"]}"),
+                              Text(formatTimestamp(sessionData['timestamp'])),
+                            ],
+                          ),
+                          leading: Container(
+                            width: 70,
+                            height: 30,
+                            color: widget.isAnswered
+                                ? Colors.green
+                                : Colors.orange,
+                            child: Center(
+                                child: widget.isAnswered
+                                    ? Text(
+                                        "بلاغ مغلق",
+                                        style: TextStyle(color: Colors.white),
+                                      )
+                                    : Text("بلاغ معلق",
+                                        style: TextStyle(color: Colors.white))),
+                          ),
+                        ),
                       );
                     },
                   );
