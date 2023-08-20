@@ -262,8 +262,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            const LoginScreen()),
+                                        builder: (context) => const LoginScreen(
+                                              isLoggedIn: false,
+                                            )),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -318,7 +319,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => LoginScreen()),
+                                    builder: (context) => LoginScreen(
+                                          isLoggedIn: false,
+                                        )),
                               );
                             },
                             child: Padding(

@@ -38,16 +38,14 @@ dependencies:
   permission_handler: ^9.0.0
   path_provider: ^2.0.9
   path: ^1.8.0
-  google_ml_kit: ^0.13.0
   image: ^3.0.2
   font_awesome_flutter: ^9.0.0
   url_launcher: ^6.0.3
-  sqflite: ^2.0.2
   get_it: ^7.2.0
   tflite_flutter: ^0.9.0
   http: ^0.13.3
   local_auth: ^2.1.2
-
+  flutter_secure_storage: ^7.0.1
 
 
 
@@ -83,6 +81,7 @@ flutter:
     - assets/logout.png
     - assets/newdoc.png
     - assets/profile.png
+    - assets/messages.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

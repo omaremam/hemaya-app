@@ -12,15 +12,20 @@ class LocalAuth {
     try {
       if (!await _canAuthenticate()) return false;
 
+      final List<BiometricType> biometrics =
+          await _auth.getAvailableBiometrics();
+
+      print(biometrics);
+
       return await _auth.authenticate(
         authMessages: [
           AndroidAuthMessages(
               signInTitle: "تسجيل الدخول", cancelButton: "الغاء"),
           IOSAuthMessages(cancelButton: "الغاء")
         ],
-        localizedReason: '',
+        localizedReason: 'تسجيل الدخول',
         options: const AuthenticationOptions(
-            useErrorDialogs: true, stickyAuth: true),
+            useErrorDialogs: true, stickyAuth: true, biometricOnly: true),
       );
     } catch (error) {
       print(error);
