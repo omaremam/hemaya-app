@@ -3,7 +3,6 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:hemaya/screens/login_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
 class RegistrationScreen extends StatefulWidget {

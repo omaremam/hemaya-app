@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  firebase_core
   flutter_webrtc
   geolocator_windows
   local_auth_windows
