@@ -74,6 +74,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
               Container(
+                height: MediaQuery.of(context).size.height - 210,
                 alignment: Alignment.bottomCenter,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
