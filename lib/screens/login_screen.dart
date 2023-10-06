@@ -102,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final response = await http.post(url, body: reqBody, headers: headers);
 
     print(response.body);
-
     if (response.statusCode == 200) {
       // If user found, return the response body as a Map
       final Map<String, dynamic> userData = json.decode(response.body);
@@ -232,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 40,
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                  gradient: LinearGradient(
+                                  gradient: const LinearGradient(
                                     colors: [
                                       Color.fromARGB(207, 207, 207, 207),
                                       Colors.white,
@@ -287,6 +286,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                           builder: (context) => JoinScreen(
                                               selfCallerId: user["id"],
                                               name: user["name"],
+                                              email: user["email"],
+                                              password: user["password"],
                                               lat: latitude,
                                               long: longitude,
                                               userId: user["id"])),
@@ -298,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   }
                                   // ignore: use_build_context_synchronously
                                 },
-                                child: Padding(
+                                child: const Padding(
                                   padding: const EdgeInsets.only(
                                       right: 10.0, left: 10),
                                   child: const Text(
@@ -380,25 +381,42 @@ class _LoginScreenState extends State<LoginScreen> {
                                       LandingScreen()
                                           .storage
                                           .read(key: "name")
-                                          .then((name) async {
-                                        await requestLocationPermission();
-                                        Map<String, double> position =
-                                            await getLocation();
-                                        double? latitude = position["latitude"];
-                                        double? longitude =
-                                            position["longitude"];
-                                        // ignore: use_build_context_synchronously
+                                          .then((name) {
+                                        LandingScreen()
+                                            .storage
+                                            .read(key: "email")
+                                            .then((email) {
+                                          LandingScreen()
+                                              .storage
+                                              .read(key: "password")
+                                              .then((password) async {
+                                            await requestLocationPermission();
+                                            Map<String, double> position =
+                                                await getLocation();
+                                            double? latitude =
+                                                position["latitude"];
+                                            double? longitude =
+                                                position["longitude"];
 
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => JoinScreen(
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    JoinScreen(
                                                   selfCallerId: userId!,
                                                   name: name!,
                                                   lat: latitude,
                                                   long: longitude,
-                                                  userId: userId)),
-                                        );
+                                                  userId: userId,
+                                                  email:
+                                                      email!,
+                                                  password:
+                                                      password!,
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                        });
                                       });
                                     });
                                   }

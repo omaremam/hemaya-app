@@ -3,12 +3,10 @@ import 'package:hemaya/screens/langdingScreen.dart';
 import 'package:hemaya/screens/login_screen.dart';
 import 'package:hemaya/screens/messages.dart';
 import 'call_screen.dart';
-import '../services/signalling.service.dart';
 import 'calls_screen.dart';
 
 class JoinScreen extends StatefulWidget {
-  final String selfCallerId;
-  final String name, userId;
+  final String selfCallerId, name, userId, email, password;
   late double? lat;
   late double? long;
 
@@ -16,6 +14,8 @@ class JoinScreen extends StatefulWidget {
     super.key,
     required this.selfCallerId,
     required this.name,
+    required this.email,
+    required this.password,
     required this.lat,
     required this.long,
     required this.userId,
@@ -124,6 +124,7 @@ class _JoinScreenState extends State<JoinScreen> {
                     alignment: Alignment.center,
                     child: Column(
                       children: [
+                        //بلاغ جديد
                         Container(
                           width: 250,
                           height: 50,
@@ -165,6 +166,7 @@ class _JoinScreenState extends State<JoinScreen> {
                             ),
                           ),
                         ),
+                        //'البلاغات المغلقة'
                         Container(
                           width: 250,
                           height: 50,
@@ -207,6 +209,7 @@ class _JoinScreenState extends State<JoinScreen> {
                             ),
                           ),
                         ),
+                        //'البلاغات المعلقة'
                         Container(
                           width: 250,
                           height: 50,
@@ -248,6 +251,7 @@ class _JoinScreenState extends State<JoinScreen> {
                             ),
                           ),
                         ),
+                        //'صندوق الرسائل'
                         Container(
                           width: 250,
                           height: 50,
@@ -290,6 +294,49 @@ class _JoinScreenState extends State<JoinScreen> {
                             ),
                           ),
                         ),
+                        //حساب المستخدم
+                        Container(
+                          width: 250,
+                          height: 50,
+                          margin: EdgeInsets.only(top: 10),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromRGBO(242, 242, 242, 1),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0)),
+                              elevation: 0,
+                            ),
+                            onPressed: () {
+                              LandingScreen().storage.deleteAll();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        LoginScreen(isLoggedIn: false)),
+                              );
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Opacity(
+                                  opacity: 0,
+                                  child: Icon(Icons.arrow_forward),
+                                ),
+                                Text(
+                                  'حساب المستخدم',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                Container(
+                                    height: 30,
+                                    width: 30,
+                                    child: Image.asset(
+                                      "assets/badge.png",
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                        //'تسجيل الخروج'
                         Container(
                           width: 250,
                           height: 50,
