@@ -117,8 +117,8 @@ class _JoinScreenState extends State<JoinScreen> {
                     ),
                   ),
                   margin:
-                      const EdgeInsets.only(left: 8.0, right: 8.0, top: 100),
-                  padding: const EdgeInsets.only(top: 20, bottom: 160),
+                      const EdgeInsets.only(left: 8.0, right: 8.0, top: 50),
+                  // padding: const EdgeInsets.only(top: 20, bottom: 160),
                   child: Container(
                     margin: EdgeInsets.only(top: 100),
                     alignment: Alignment.center,
@@ -327,10 +327,10 @@ class _JoinScreenState extends State<JoinScreen> {
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 Container(
-                                    height: 30,
-                                    width: 30,
+                                    height: 25,
+                                    width: 25,
                                     child: Image.asset(
-                                      "assets/badge.png",
+                                      "assets/user.png",
                                     )),
                               ],
                             ),

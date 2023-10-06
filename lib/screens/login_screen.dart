@@ -100,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
     print(reqBody);
 
     final response = await http.post(url, body: reqBody, headers: headers);
-
     print(response.body);
     if (response.statusCode == 200) {
       // If user found, return the response body as a Map
@@ -145,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   margin:
                       const EdgeInsets.only(left: 8.0, right: 8.0, top: 20.0),
-                  padding: const EdgeInsets.only(top: 20, bottom: 160),
+                  padding: const EdgeInsets.only(top: 20, bottom: 50),
                   child: Column(
                     children: [
                       const Padding(

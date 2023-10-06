@@ -42,14 +42,13 @@ class _CallScreenState extends State<CallScreen> {
 
   // media status
   bool isAudioOn = true, isVideoOn = true, isFrontCameraSelected = true;
+  int tapCount = 0;
 
   @override
   void initState() {
     // initializing renderers
     _localRTCVideoRenderer.initialize();
 
-    // setup Peer Connection
-    _setupPeerConnection();
     super.initState();
   }
 
@@ -193,7 +192,56 @@ class _CallScreenState extends State<CallScreen> {
                   _localRTCVideoRenderer,
                   mirror: isFrontCameraSelected,
                   objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                )
+                ),
+                Positioned(
+                  bottom: 16.0, // Adjust the bottom position as needed
+                  left: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Handle the tap based on the tap count
+                      if (tapCount == 0) {
+                        // First tap - Make the call
+                        // setup Peer Connection
+                        _setupPeerConnection();
+                        print('Making the call...');
+                        // Add your logic for making the call here
+                      } else if (tapCount == 1) {
+                        // Second tap - Cancel the call
+                        _leaveCall() ;
+                        print('Canceling the call...');
+                        // Add your logic for canceling the call here
+                      }
+                      // Increment the tap count
+                      tapCount++;
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 100),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.red[700],
+                      ),
+                      padding: const EdgeInsets.all(32.0),
+                      child: const Column(
+                        children: [
+                          Icon(
+                            Icons.call_end,
+                            color: Colors.white,
+                          ),
+                          SizedBox(height: 8.0),
+                          Text(
+                            '911',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ]),
             ),
             Padding(
@@ -205,11 +253,11 @@ class _CallScreenState extends State<CallScreen> {
                     icon: Icon(isAudioOn ? Icons.mic : Icons.mic_off),
                     onPressed: _toggleMic,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.call_end),
-                    iconSize: 30,
-                    onPressed: _leaveCall,
-                  ),
+                  // IconButton(
+                  //   icon: const Icon(Icons.call_end),
+                  //   iconSize: 30,
+                  //   onPressed: _leaveCall,
+                  // ),
                   IconButton(
                     icon: const Icon(Icons.cameraswitch),
                     onPressed: _switchCamera,
