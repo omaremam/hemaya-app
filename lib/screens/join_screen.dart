@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hemaya/screens/langdingScreen.dart';
 import 'package:hemaya/screens/login_screen.dart';
 import 'package:hemaya/screens/messages.dart';
+import 'package:hemaya/screens/profile.dart';
 import 'call_screen.dart';
 import 'calls_screen.dart';
 
@@ -312,7 +313,7 @@ class _JoinScreenState extends State<JoinScreen> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        LoginScreen(isLoggedIn: false)),
+                                        Profile(name: widget.name, userId: widget.userId, email: widget.email, password: widget.password)),
                               );
                             },
                             child: Row(
