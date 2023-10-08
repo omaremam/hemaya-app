@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class Profile extends StatefulWidget {
   final String name, userId, email, password;
@@ -30,22 +32,27 @@ class _ProfileState extends State<Profile> {
     // Set the initial values of the text controllers
     nameController.text = widget.name;
     emailController.text = widget.email;
-    phoneController.text = ""; // Add logic to retrieve phone number if available
+    phoneController.text =
+        ""; // Add logic to retrieve phone number if available
     passwordController.text = widget.password;
   }
 
-void _saveChanges() {
-  // Create a JSON object with the updated values
-  Map<String, dynamic> updatedValues = {
-    'name': nameController.text,
-    'email': emailController.text,
-    'phone': phoneController.text,
-    'password': passwordController.text,
-  };
-
-  // Print the updated values for demonstration purposes
-  print('Updated Values: $updatedValues');
-}
+  void _saveChanges() {
+    updateUser(
+      widget.userId,
+      nameController.text,
+      emailController.text,
+      phoneController.text,
+      passwordController.text,
+    )
+        .then((value) => {
+              setState(() {
+                isEditing = false;
+                isPasswordVisible = false;
+              })
+            })
+        .catchError((e) => print('Error: $e'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,14 +94,15 @@ void _saveChanges() {
                       ),
                       child: TextButton(
                         onPressed: isEditing ? _saveChanges : null,
-                        style:TextButton.styleFrom(
-                          backgroundColor: isEditing ? Color(0xFF009F98) : Colors.grey
-                        ),
+                        style: TextButton.styleFrom(
+                            backgroundColor:
+                                isEditing ? Color(0xFF009F98) : Colors.grey),
                         child: const Row(
                           children: [
                             Text(
                               'حفظ التغييرات',
-                              style: TextStyle(color: Colors.white,fontSize: 20),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
                             ),
                             SizedBox(width: 8.0),
                             Icon(
@@ -106,7 +114,9 @@ void _saveChanges() {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 20,),
+                    const SizedBox(
+                      width: 20,
+                    ),
                     Container(
                       height: 50.0, // Adjust the height to your desired size
                       decoration: BoxDecoration(
@@ -127,7 +137,8 @@ void _saveChanges() {
                           children: [
                             Text(
                               'تعديل',
-                              style: TextStyle(color: Colors.white,fontSize: 20),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20),
                             ),
                             SizedBox(width: 8.0),
                             Icon(
@@ -149,7 +160,7 @@ void _saveChanges() {
     );
   }
 
-Widget _buildTextField(String label, TextEditingController controller,
+  Widget _buildTextField(String label, TextEditingController controller,
       {bool isPassword = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -197,5 +208,43 @@ Widget _buildTextField(String label, TextEditingController controller,
         ],
       ),
     );
+  }
+}
+
+Future<Map<String, dynamic>?> updateUser(String userId, String name,
+    String email, String phoneNumber, String password) async {
+  final url = Uri.parse("http://13.36.63.83:5956/users/$userId");
+
+  // Create a map with the updated user data
+  Map<String, dynamic> userData = {
+    'name': name,
+    'email': email,
+    'phoneNumber': phoneNumber,
+    'password': password,
+  };
+
+  try {
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(userData),
+    );
+
+    if (response.statusCode == 200) {
+      // User updated successfully
+      // Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      // return jsonResponse;
+      return null;
+    } else {
+      // Request failed
+      print('Failed to update user. Status code: ${response.statusCode}');
+      return null;
+    }
+  } catch (error) {
+    // Handle other errors, e.g., network issues
+    print('Error: $error');
+    return null;
   }
 }

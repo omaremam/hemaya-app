@@ -130,8 +130,6 @@ class _CallScreenState extends State<CallScreen> {
     await _rtcPeerConnection!.setLocalDescription(offer);
 
     // make a call to remote peer over signalling
-    print(widget.calleeId);
-    print(widget.callerId);
 
     socket!.emit('makeCall', {
       "calleeId": widget.calleeId,
