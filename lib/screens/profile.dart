@@ -39,19 +39,19 @@ class _ProfileState extends State<Profile> {
 
   void _saveChanges() {
     updateUser(
+      context,
       widget.userId,
       nameController.text,
       emailController.text,
       phoneController.text,
       passwordController.text,
-    )
-        .then((value) => {
-              setState(() {
-                isEditing = false;
-                isPasswordVisible = false;
-              })
-            })
-        .catchError((e) => print('Error: $e'));
+    );
+    // .then((value) => {
+    //       setState(() {
+    //         isEditing = false;
+    //       })
+    //     })
+    // .catchError((e) => print('Error: $e'));
   }
 
   @override
@@ -211,8 +211,13 @@ class _ProfileState extends State<Profile> {
   }
 }
 
-Future<Map<String, dynamic>?> updateUser(String userId, String name,
-    String email, String phoneNumber, String password) async {
+Future<Map<String, dynamic>?> updateUser(
+  BuildContext context,
+  String userId,
+  String name,
+  String email,
+  String phoneNumber,
+  String password) async {
   final url = Uri.parse("http://13.36.63.83:5956/users/$userId");
 
   // Create a map with the updated user data
@@ -236,8 +241,20 @@ Future<Map<String, dynamic>?> updateUser(String userId, String name,
       // User updated successfully
       // Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       // return jsonResponse;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('User updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
       return null;
     } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update user. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       // Request failed
       print('Failed to update user. Status code: ${response.statusCode}');
       return null;
