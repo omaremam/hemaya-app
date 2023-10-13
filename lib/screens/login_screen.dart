@@ -131,7 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
     print('# ' * 100);
     SignallingService.instance.socket!.on("newMobileCall", (data) {
       print("CALL OFFER:");
-      print(data['callerId']);
       // Access the CallState provider
       final callState = Provider.of<CallState>(context, listen: false);
       // Set SDP Offer of incoming call

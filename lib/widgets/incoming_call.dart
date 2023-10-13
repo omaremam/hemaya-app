@@ -21,7 +21,6 @@ class _IncomingCallState extends State<IncomingCall> {
     if (mounted) {
       print("IncomingCall Widget");
       print(widget.offer != null);
-      print(widget.offer);
     }
   }
 
@@ -32,8 +31,6 @@ class _IncomingCallState extends State<IncomingCall> {
   }
 
   _navigateToCallScreen(offer){
-    print('@'*50);
-    print(offer["sdpOffer"]["call_key"]);
         Navigator.push(
       context,
       MaterialPageRoute(

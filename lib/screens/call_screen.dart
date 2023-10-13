@@ -97,7 +97,6 @@ class _CallScreenState extends State<CallScreen> {
       });
 
       // set SDP offer as remoteDescription for peerConnection
-      print(widget.offer);
       await _rtcPeerConnection!.setRemoteDescription(
         RTCSessionDescription(widget.offer["sdp"], widget.offer["type"]),
       );
