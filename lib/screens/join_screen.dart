@@ -422,12 +422,9 @@ class _JoinScreenState extends State<JoinScreen> {
                   return Visibility(
                     visible: callState.incomingCall,
                     child: Positioned(
-                      bottom: 200,
-                      right: 80,
-                      child: Material(
-                        child: IncomingCall(offer: callState.sdpOffer),
-                      ),
-                    ),
+                        bottom: 200,
+                        right: 90,
+                        child: IncomingCall(offer: callState.sdpOffer)),
                   );
                 },
               ),
