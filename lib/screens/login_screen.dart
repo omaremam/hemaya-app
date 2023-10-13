@@ -2,12 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hemaya/providers/call_state.dart';
 import 'package:hemaya/screens/join_screen.dart';
 import 'package:hemaya/screens/langdingScreen.dart';
 import 'package:hemaya/screens/registeration_screen.dart';
 import 'package:hemaya/services/local_auth_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
+// import 'package:hemaya/providers/user_provider.dart';
+import '../services/signalling.service.dart';
 
 class LoginScreen extends StatefulWidget {
   final bool isLoggedIn;
@@ -104,11 +109,48 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       // If user found, return the response body as a Map
       final Map<String, dynamic> userData = json.decode(response.body);
+      // Provider.of<UserProvider>(context, listen: false)
+      //     .setUserCallKey(userData["call_key"]);
       return userData;
     } else {
       // If no user found or other error, return null
       return null;
     }
+  }
+
+  _navigateToJoinScreen(user, latitude, longitude) {
+    // signalling server url
+    const String websocketUrl = "http://13.36.63.83:5000";
+
+    // init signalling service
+    SignallingService.instance.init(
+      websocketUrl: websocketUrl,
+      selfCallerID: user["call_key"],
+    );
+
+    print('# ' * 100);
+    SignallingService.instance.socket!.on("newMobileCall", (data) {
+      print("CALL OFFER:");
+      print(data['callerId']);
+      // Access the CallState provider
+      final callState = Provider.of<CallState>(context, listen: false);
+      // Set SDP Offer of incoming call
+      callState.setIncomingCall(data);
+      print('# ' * 100);
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => JoinScreen(
+              selfCallerId: user["id"],
+              name: user["name"],
+              email: user["email"],
+              password: user["password"],
+              lat: latitude,
+              long: longitude,
+              userId: user["id"])),
+    );
   }
 
   @override
@@ -278,19 +320,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                     LandingScreen().storage.write(
                                         key: "name", value: user["name"]);
-
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => JoinScreen(
-                                              selfCallerId: user["id"],
-                                              name: user["name"],
-                                              email: user["email"],
-                                              password: user["password"],
-                                              lat: latitude,
-                                              long: longitude,
-                                              userId: user["id"])),
-                                    );
+                                    LandingScreen().storage.write(
+                                        key: "call_key",
+                                        value: user["call_key"]);
+                                    _navigateToJoinScreen(
+                                        user, latitude, longitude);
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
@@ -388,32 +422,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                           LandingScreen()
                                               .storage
                                               .read(key: "password")
-                                              .then((password) async {
-                                            await requestLocationPermission();
-                                            Map<String, double> position =
-                                                await getLocation();
-                                            double? latitude =
-                                                position["latitude"];
-                                            double? longitude =
-                                                position["longitude"];
+                                              .then((password) {
+                                            LandingScreen()
+                                                .storage
+                                                .read(key: "call_key")
+                                                .then((callKey) async {
+                                              await requestLocationPermission();
+                                              Map<String, double> position =
+                                                  await getLocation();
+                                              double? latitude =
+                                                  position["latitude"];
+                                              double? longitude =
+                                                  position["longitude"];
 
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    JoinScreen(
-                                                  selfCallerId: userId!,
-                                                  name: name!,
-                                                  lat: latitude,
-                                                  long: longitude,
-                                                  userId: userId,
-                                                  email:
-                                                      email!,
-                                                  password:
-                                                      password!,
-                                                ),
-                                              ),
-                                            );
+                                              Map<String, dynamic> user = {
+                                                "id": userId!,
+                                                "name": name!,
+                                                "email": email!,
+                                                "password": password!,
+                                                "lat": latitude!,
+                                                "long": longitude!,
+                                                "userId": userId,
+                                                "call_key": callKey,
+                                              };
+
+                                              _navigateToJoinScreen(
+                                                  user, latitude, longitude);
+                                            });
                                           });
                                         });
                                       });

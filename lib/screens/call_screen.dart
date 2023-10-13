@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:hemaya/providers/call_state.dart';
+import 'package:provider/provider.dart';
 import '../services/signalling.service.dart';
 
 class CallScreen extends StatefulWidget {
@@ -22,6 +24,7 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
+  bool incomingCall = false;
   // socket instance
   final socket = SignallingService.instance.socket;
 
@@ -77,71 +80,109 @@ class _CallScreenState extends State<CallScreen> {
       _remoteRTCVideoRenderer.srcObject = event.streams[0];
       setState(() {});
     };
-
-    // get localStream
-    _localStream = await navigator.mediaDevices.getUserMedia({
-      'audio': isAudioOn,
-      'video': isVideoOn
-          ? {'facingMode': isFrontCameraSelected ? 'user' : 'environment'}
-          : false,
-    });
-
-    // add mediaTrack to peerConnection
-    _localStream!.getTracks().forEach((track) {
-      _rtcPeerConnection!.addTrack(track, _localStream!);
-    });
-
-    // set source for local video renderer
-    _localRTCVideoRenderer.srcObject = _localStream;
-    setState(() {});
-
     // for Incoming call
+    if (incomingCall) {
+      // listen for Remote IceCandidate
+      socket!.on("IceCandidate", (data) {
+        String candidate = data["iceCandidate"]["candidate"];
+        String sdpMid = data["iceCandidate"]["id"];
+        int sdpMLineIndex = data["iceCandidate"]["label"];
 
-    _rtcPeerConnection!.onIceCandidate =
-        (RTCIceCandidate candidate) => rtcIceCadidates.add(candidate);
+        // add iceCandidate
+        _rtcPeerConnection!.addCandidate(RTCIceCandidate(
+          candidate,
+          sdpMid,
+          sdpMLineIndex,
+        ));
+      });
 
-    // when call is accepted by remote peer
-    socket!.on("callAnswered", (data) async {
-      // set SDP answer as remoteDescription for peerConnection
+      // set SDP offer as remoteDescription for peerConnection
+      print(widget.offer);
       await _rtcPeerConnection!.setRemoteDescription(
-        RTCSessionDescription(
-          data["sdpAnswer"]["sdp"],
-          data["sdpAnswer"]["type"],
-        ),
+        RTCSessionDescription(widget.offer["sdp"], widget.offer["type"]),
       );
 
-      // send iceCandidate generated to remote peer over signalling
-      for (RTCIceCandidate candidate in rtcIceCadidates) {
-        socket!.emit("IceCandidate", {
-          "calleeId": widget.calleeId,
-          "iceCandidate": {
-            "id": candidate.sdpMid,
-            "label": candidate.sdpMLineIndex,
-            "candidate": candidate.candidate
-          }
-        });
-      }
-    });
+      // create SDP answer
+      RTCSessionDescription answer = await _rtcPeerConnection!.createAnswer();
 
-    // create SDP Offer
-    RTCSessionDescription offer = await _rtcPeerConnection!.createOffer();
+      print(answer);
 
-    // set SDP offer as localDescription for peerConnection
-    await _rtcPeerConnection!.setLocalDescription(offer);
+      // set SDP answer as localDescription for peerConnection
+      _rtcPeerConnection!.setLocalDescription(answer);
 
-    // make a call to remote peer over signalling
+      // send SDP answer to remote peer over signalling
+      socket!.emit("answerCall", {
+        "callerId": widget.callerId,
+        "userId": widget.calleeId,
+        "sdpAnswer": answer.toMap(),
+      });
+    } else {
+      // get localStream
+      _localStream = await navigator.mediaDevices.getUserMedia({
+        'audio': isAudioOn,
+        'video': isVideoOn
+            ? {'facingMode': isFrontCameraSelected ? 'user' : 'environment'}
+            : false,
+      });
 
-    socket!.emit('makeCall', {
-      "calleeId": widget.calleeId,
-      "sdpOffer": offer.toMap(),
-      "name": widget.name,
-      "lat": widget.lat,
-      "long": widget.long,
-      "userId": widget.callerId
-    });
+      // add mediaTrack to peerConnection
+      _localStream!.getTracks().forEach((track) {
+        _rtcPeerConnection!.addTrack(track, _localStream!);
+      });
+
+      // set source for local video renderer
+      _localRTCVideoRenderer.srcObject = _localStream;
+      setState(() {});
+
+      // for Incoming call
+
+      _rtcPeerConnection!.onIceCandidate =
+          (RTCIceCandidate candidate) => rtcIceCadidates.add(candidate);
+
+      // when call is accepted by remote peer
+      socket!.on("callAnswered", (data) async {
+        // set SDP answer as remoteDescription for peerConnection
+        await _rtcPeerConnection!.setRemoteDescription(
+          RTCSessionDescription(
+            data["sdpAnswer"]["sdp"],
+            data["sdpAnswer"]["type"],
+          ),
+        );
+
+        // send iceCandidate generated to remote peer over signalling
+        for (RTCIceCandidate candidate in rtcIceCadidates) {
+          socket!.emit("IceCandidate", {
+            "calleeId": widget.calleeId,
+            "iceCandidate": {
+              "id": candidate.sdpMid,
+              "label": candidate.sdpMLineIndex,
+              "candidate": candidate.candidate
+            }
+          });
+        }
+      });
+
+      // create SDP Offer
+      RTCSessionDescription offer = await _rtcPeerConnection!.createOffer();
+
+      // set SDP offer as localDescription for peerConnection
+      await _rtcPeerConnection!.setLocalDescription(offer);
+
+      // make a call to remote peer over signalling
+
+      socket!.emit('makeCall', {
+        "calleeId": widget.calleeId,
+        "sdpOffer": offer.toMap(),
+        "name": widget.name,
+        "lat": widget.lat,
+        "long": widget.long,
+        "userId": widget.callerId
+      });
+    }
   }
 
   _leaveCall() {
+    Provider.of<CallState>(context, listen: false).clearIncomingCall();
     Navigator.pop(context);
   }
 
@@ -180,96 +221,105 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(children: [
-                RTCVideoView(
-                  _localRTCVideoRenderer,
-                  mirror: isFrontCameraSelected,
-                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                ),
-                Positioned(
-                  bottom: 16.0, // Adjust the bottom position as needed
-                  left: 0,
-                  right: 0,
-                  child: GestureDetector(
-                    onTap: () {
-                      // Handle the tap based on the tap count
-                      if (tapCount == 0) {
-                        // First tap - Make the call
-                        // setup Peer Connection
-                        _setupPeerConnection();
-                        print('Making the call...');
-                        // Add your logic for making the call here
-                      } else if (tapCount == 1) {
-                        // Second tap - Cancel the call
-                        _leaveCall() ;
-                        print('Canceling the call...');
-                        // Add your logic for canceling the call here
-                      }
-                      // Increment the tap count
-                      tapCount++;
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 100),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.red[700],
-                      ),
-                      padding: const EdgeInsets.all(32.0),
-                      child: const Column(
-                        children: [
-                          Icon(
-                            Icons.call_end,
-                            color: Colors.white,
-                          ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            '911',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20.0,
+    return Consumer<CallState>(
+      builder: (context, callState, child) {
+        incomingCall = callState.incomingCall;
+        return Scaffold(
+          body: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Stack(children: [
+                    RTCVideoView(
+                      _localRTCVideoRenderer,
+                      mirror: isFrontCameraSelected,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    ),
+                    if (!incomingCall)
+                      Positioned(
+                        bottom: 16.0, // Adjust the bottom position as needed
+                        left: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            // Handle the tap based on the tap count
+                            if (tapCount == 0) {
+                              // First tap - Make the call
+                              // setup Peer Connection
+                              _setupPeerConnection();
+                              print('Making the call...');
+                              // Add your logic for making the call here
+                            } else if (tapCount == 1) {
+                              // Second tap - Cancel the call
+                              _leaveCall();
+                              print('Canceling the call...');
+                              // Add your logic for canceling the call here
+                            }
+                            // Increment the tap count
+                            tapCount++;
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.red[700],
+                            ),
+                            padding: const EdgeInsets.all(32.0),
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.call_end,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(height: 8.0),
+                                Text(
+                                  '911',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20.0,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                  ]),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        icon: Icon(isAudioOn ? Icons.mic : Icons.mic_off),
+                        onPressed: _toggleMic,
+                      ),
+                      if (incomingCall)
+                        IconButton(
+                          icon: const Icon(Icons.call_end),
+                          iconSize: 30,
+                          onPressed: _leaveCall,
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.cameraswitch),
+                        onPressed: _switchCamera,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                            isVideoOn ? Icons.videocam : Icons.videocam_off),
+                        onPressed: _toggleCamera,
+                      ),
+                    ],
                   ),
                 ),
-              ]),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    icon: Icon(isAudioOn ? Icons.mic : Icons.mic_off),
-                    onPressed: _toggleMic,
-                  ),
-                  // IconButton(
-                  //   icon: const Icon(Icons.call_end),
-                  //   iconSize: 30,
-                  //   onPressed: _leaveCall,
-                  // ),
-                  IconButton(
-                    icon: const Icon(Icons.cameraswitch),
-                    onPressed: _switchCamera,
-                  ),
-                  IconButton(
-                    icon: Icon(isVideoOn ? Icons.videocam : Icons.videocam_off),
-                    onPressed: _toggleCamera,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

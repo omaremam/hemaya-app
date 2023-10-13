@@ -74,7 +74,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
               Container(
-                height: MediaQuery.of(context).size.height - 210,
+                height: MediaQuery.of(context).size.height - 170,
                 alignment: Alignment.bottomCenter,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -92,7 +92,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 child: Column(
                   children: [
                     const Padding(
-                      padding: EdgeInsets.all(24.0),
+                      padding: EdgeInsets.all(0.0),
                       child: Text(
                         "إنشاء حساب",
                         style: TextStyle(color: Colors.white, fontSize: 24.0),
@@ -100,7 +100,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 10.0),
+                          horizontal: 20.0, vertical: 5.0),
                       child: Container(
                         width: 250,
                         height: 50,
