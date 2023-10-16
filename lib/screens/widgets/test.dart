@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:hemaya/providers/call_state.dart';
-import 'package:provider/provider.dart';
-import '../services/signalling.service.dart';
+import 'package:hemaya/services/signalling.service.dart';
 
 class CallScreen extends StatefulWidget {
-  final String callerId, calleeId, name, userId;
-  final double? lat, long;
+  final String callerId, calleeId;
   final dynamic offer;
   const CallScreen({
     super.key,
     this.offer,
     required this.callerId,
     required this.calleeId,
-    required this.name,
-    required this.lat,
-    required this.long,
-    required this.userId,
   });
 
   @override
@@ -24,7 +17,6 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  bool incomingCall = false;
   // socket instance
   final socket = SignallingService.instance.socket;
 
@@ -45,18 +37,15 @@ class _CallScreenState extends State<CallScreen> {
 
   // media status
   bool isAudioOn = true, isVideoOn = true, isFrontCameraSelected = true;
-  int tapCount = 0;
 
   @override
   void initState() {
-    incomingCall = Provider.of<CallState>(context, listen: false).incomingCall;
     // initializing renderers
     _localRTCVideoRenderer.initialize();
     _remoteRTCVideoRenderer.initialize();
-    print(incomingCall);
-    if (incomingCall) {
-      _setupPeerConnection();
-    }
+
+    // setup Peer Connection
+    _setupPeerConnection();
     super.initState();
   }
 
@@ -102,12 +91,9 @@ class _CallScreenState extends State<CallScreen> {
     // set source for local video renderer
     _localRTCVideoRenderer.srcObject = _localStream;
     setState(() {});
+
     // for Incoming call
-
-    print(incomingCall);
-    print("yooo");
-
-    if (incomingCall) {
+    if (widget.offer != null) {
       // listen for Remote IceCandidate
       socket!.on("IceCandidate", (data) {
         String candidate = data["iceCandidate"]["candidate"];
@@ -124,38 +110,29 @@ class _CallScreenState extends State<CallScreen> {
 
       // set SDP offer as remoteDescription for peerConnection
       await _rtcPeerConnection!.setRemoteDescription(
-        RTCSessionDescription(
-            widget.offer["sdpOffer"]["sdp"], widget.offer["sdpOffer"]["type"]),
+        RTCSessionDescription(widget.offer["sdp"], widget.offer["type"]),
       );
 
       // create SDP answer
       RTCSessionDescription answer = await _rtcPeerConnection!.createAnswer();
-      print('^' * 100);
-      print(widget.offer["sdpOffer"]);
-
-      print('Answer');
-      print(answer);
 
       // set SDP answer as localDescription for peerConnection
       _rtcPeerConnection!.setLocalDescription(answer);
 
       // send SDP answer to remote peer over signalling
-
-      print(widget.callerId + " a7a " + widget.calleeId);
-
       socket!.emit("answerCall", {
         "callerId": widget.callerId,
-        "calleeId": widget.calleeId,
         "sdpAnswer": answer.toMap(),
       });
-    } else {
+    }
+    // for Outgoing Call
+    else {
+      // listen for local iceCandidate and add it to the list of IceCandidate
       _rtcPeerConnection!.onIceCandidate =
           (RTCIceCandidate candidate) => rtcIceCadidates.add(candidate);
 
       // when call is accepted by remote peer
       socket!.on("callAnswered", (data) async {
-        print('@' * 50);
-        print(data["sdpAnswer"]);
         // set SDP answer as remoteDescription for peerConnection
         await _rtcPeerConnection!.setRemoteDescription(
           RTCSessionDescription(
@@ -184,20 +161,14 @@ class _CallScreenState extends State<CallScreen> {
       await _rtcPeerConnection!.setLocalDescription(offer);
 
       // make a call to remote peer over signalling
-
       socket!.emit('makeCall', {
         "calleeId": widget.calleeId,
         "sdpOffer": offer.toMap(),
-        "name": widget.name,
-        "lat": widget.lat,
-        "long": widget.long,
-        "userId": widget.callerId
       });
     }
   }
 
   _leaveCall() {
-    Provider.of<CallState>(context, listen: false).clearIncomingCall();
     Navigator.pop(context);
   }
 
@@ -236,119 +207,64 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CallState>(
-      builder: (context, callState, child) {
-        incomingCall = callState.incomingCall;
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: Stack(children: [
-                    RTCVideoView(
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        title: const Text("P2P Call App"),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(children: [
+                RTCVideoView(
+                  _remoteRTCVideoRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                ),
+                Positioned(
+                  right: 20,
+                  bottom: 20,
+                  child: SizedBox(
+                    height: 150,
+                    width: 120,
+                    child: RTCVideoView(
                       _localRTCVideoRenderer,
                       mirror: isFrontCameraSelected,
                       objectFit:
                           RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                     ),
-                    Positioned(
-                      right: 20,
-                      bottom: 20,
-                      child: SizedBox(
-                        height: 150,
-                        width: 120,
-                        child: RTCVideoView(
-                          _remoteRTCVideoRenderer,
-                          mirror: isFrontCameraSelected,
-                          objectFit:
-                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                        ),
-                      ),
-                    ),
-                    if (!incomingCall)
-                      Positioned(
-                        bottom: 16.0, // Adjust the bottom position as needed
-                        left: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            // Handle the tap based on the tap count
-                            if (tapCount == 0) {
-                              // First tap - Make the call
-                              // setup Peer Connection
-                              _setupPeerConnection();
-                              print('Making the call...');
-                              // Add your logic for making the call here
-                            } else if (tapCount == 1) {
-                              // Second tap - Cancel the call
-                              _leaveCall();
-                              print('Canceling the call...');
-                              // Add your logic for canceling the call here
-                            }
-                            // Increment the tap count
-                            tapCount++;
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 100),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.red[700],
-                            ),
-                            padding: const EdgeInsets.all(32.0),
-                            child: const Column(
-                              children: [
-                                Icon(
-                                  Icons.call_end,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  '911',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                  ]),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      IconButton(
-                        icon: Icon(isAudioOn ? Icons.mic : Icons.mic_off),
-                        onPressed: _toggleMic,
-                      ),
-                      if (incomingCall)
-                        IconButton(
-                          icon: const Icon(Icons.call_end),
-                          iconSize: 30,
-                          onPressed: _leaveCall,
-                        ),
-                      IconButton(
-                        icon: const Icon(Icons.cameraswitch),
-                        onPressed: _switchCamera,
-                      ),
-                      IconButton(
-                        icon: Icon(
-                            isVideoOn ? Icons.videocam : Icons.videocam_off),
-                        onPressed: _toggleCamera,
-                      ),
-                    ],
                   ),
-                ),
-              ],
+                )
+              ]),
             ),
-          ),
-        );
-      },
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    icon: Icon(isAudioOn ? Icons.mic : Icons.mic_off),
+                    onPressed: _toggleMic,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.call_end),
+                    iconSize: 30,
+                    onPressed: _leaveCall,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.cameraswitch),
+                    onPressed: _switchCamera,
+                  ),
+                  IconButton(
+                    icon: Icon(isVideoOn ? Icons.videocam : Icons.videocam_off),
+                    onPressed: _toggleCamera,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

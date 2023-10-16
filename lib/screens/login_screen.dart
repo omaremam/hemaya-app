@@ -135,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final callState = Provider.of<CallState>(context, listen: false);
       // Set SDP Offer of incoming call
       callState.setIncomingCall(data);
+      print(data);
       print('# ' * 100);
     });
 

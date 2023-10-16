@@ -415,6 +415,7 @@ class _JoinScreenState extends State<JoinScreen> {
               ),
               Consumer<CallState>(
                 builder: (context, callState, child) {
+                  print(callState.sdpOffer);
                   if (callState.incomingCall == false) {
                     // Handle the case where callState is null
                     return SizedBox.shrink();

@@ -20,7 +20,6 @@ class _IncomingCallState extends State<IncomingCall> {
     callOffer = widget.offer;
     if (mounted) {
       print("IncomingCall Widget");
-      print(widget.offer != null);
     }
   }
 
@@ -30,8 +29,8 @@ class _IncomingCallState extends State<IncomingCall> {
     super.dispose();
   }
 
-  _navigateToCallScreen(offer){
-        Navigator.push(
+  _navigateToCallScreen(offer) {
+    Navigator.push(
       context,
       MaterialPageRoute(
           builder: (_) => CallScreen(
@@ -47,36 +46,37 @@ class _IncomingCallState extends State<IncomingCall> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.black.withOpacity(0.7), // Adjust opacity as needed
-      borderRadius: BorderRadius.circular(15.0), // Adjust border radius as needed
-    ),
-    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Incoming Call",
-          style: TextStyle(color: Colors.white),
-        ),
-        IconButton(
-          icon: const Icon(Icons.call_end),
-          color: Colors.redAccent,
-          onPressed: () {
-            context.read<CallState>().clearIncomingCall();
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.call),
-          color: Colors.greenAccent,
-          onPressed: () {
-            _navigateToCallScreen(widget.offer);
-          },
-        ),
-      ],
-    ),
-  );
-}
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7), // Adjust opacity as needed
+        borderRadius:
+            BorderRadius.circular(15.0), // Adjust border radius as needed
+      ),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            "Incoming Call",
+            style: TextStyle(color: Colors.white),
+          ),
+          IconButton(
+            icon: const Icon(Icons.call_end),
+            color: Colors.redAccent,
+            onPressed: () {
+              context.read<CallState>().clearIncomingCall();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.call),
+            color: Colors.greenAccent,
+            onPressed: () {
+              _navigateToCallScreen(widget.offer);
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
